@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+body{
+    font-family: 'roboto', arial, helvetica, sans-serif;
+    
+    margin:0px;
+    padding:0px;
+}
+.body-index{
+    background-image: url('../img/philipp-katzenberger-iIJrUoeRoCQ-unsplash.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    background-position: center;
+}
+.index-eputy{
+    text-align:center;
+}
