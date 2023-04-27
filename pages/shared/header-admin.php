@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,9 +10,7 @@
     
     <link href="../../static/css/fontawesome-free-6.3.0-web/css/all.css" rel="stylesheet" />
     <link href="../../static/css/fontawesome-free-6.3.0-web/css/all.min.css" rel="stylesheet" />
-    <title>
-        Eputy App
-    </title>
+    <title>Document</title>
 </head>
 <body>
     

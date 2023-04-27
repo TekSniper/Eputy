@@ -10,7 +10,7 @@
     
     <link href="../static/css/fontawesome-free-6.3.0-web/css/all.css" rel="stylesheet" />
     <link href="../static/css/fontawesome-free-6.3.0-web/css/all.min.css" rel="stylesheet" />
-    <title>Gestion Utilisateurs - Eputy</title>
+    <title>Nouvel Utilisateur - Eputy</title>
 </head>
 <body>
     

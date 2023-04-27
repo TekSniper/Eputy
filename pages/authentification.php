@@ -1,5 +1,16 @@
+<?php
+
+$err_message;
+
+try{
+    $db = new PDO('mysql:host=localhost;dbname=eputy_base', 'root', '');
+}
+catch(Exception $e){
+    die('Erreur : ' . $e->getMessage());
+}
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -25,7 +36,7 @@
                             <div class="field">
                                 <div class="label" for="identifiant">Identifiant</div>
                                 <div class="control has-icons-left">
-                                    <input type="text" name="identifiant" id="identifiant" class="input" placeholder="Identifiant" focused>
+                                    <input type="text" name="identifiant" id="identifiant" class="input" required placeholder="Identifiant" focused>
                                     <span class="icon is-small is-left">
                                         <i class="fa-solid fa-user"></i>
                                     </span>
@@ -33,7 +44,7 @@
                                 </div><div class="field">
                                     <div class="label" for="pwd">Mot de passe</div>
                                     <div class="control has-icons-left">
-                                        <input type="password" name="pwd" id="pwd" class="input" placeholder="Mot de passe">
+                                        <input type="password" name="pwd" id="pwd" class="input" required placeholder="Mot de passe">
                                         <span class="icon is-small is-left">
                                             <i class="fa-solid fa-lock"></i>
                                         </span>
@@ -45,10 +56,44 @@
                                     </div>
                                 </div>
                         </form>
+                        <?php
+                        if(!isset($_POST['identifiant']) && !isset($_POST['pwd'])){
+                            echo '';
+                        }
+                        else{
+                        $id_user = $_POST['identifiant'];
+                        $pwd = $_POST['pwd'];
+                        $req = $db->prepare('select * from utilisateur where identifiant=:identi and mot_de_passe=:pwd');
+                        $req->execute(
+                            array(
+                                'identi' => $id_user,
+                                'pwd' => $pwd
+                            )
+                        );
+                        $result = $req->fetch();
+                        if (!$result) {?>
+                        <div class="notification is-danger is-light">
+                            <h2><strong>Attention !</strong></h2>
+                            Connexion impossible<br>Identifiant ou mot de passe incorrect
+                        </div>
+                        <?php } else {
+                            session_start();
+                            $_SESSION['id'] = $result['identifiant'];
+                            $_SESSION['pwd'] = $result['mot_de_passe'];
+                            $_SESSION['profile'] = $result['user_profile'];
+                            if($_SESSION['profile'] == 'Administrateur'){
+                                header('location:utilisateurs.php');
+                            }
+                            else{
+                                header('location:score.php');
+                            }
+                        }
+                    }
+                        ?>
                     </div>
                 </div>
             </div>
-        </div>        
+        </div>
     </section>
 </body>
 </html>
