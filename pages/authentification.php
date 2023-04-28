@@ -2,12 +2,26 @@
 
 $err_message;
 
+session_start();
 try{
     $db = new PDO('mysql:host=localhost;dbname=eputy_base', 'root', '');
 }
 catch(Exception $e){
     die('Erreur : ' . $e->getMessage());
 }
+
+if(strlen($_SESSION['id'])!=0){
+    if($_SESSION['profile']=='Administrateur'){
+        header('Location:utilisateurs.php');
+    }
+    else{
+        header('Location:score.php');
+    }
+}
+else{
+    echo '';
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -73,11 +87,10 @@ catch(Exception $e){
                         $result = $req->fetch();
                         if (!$result) {?>
                         <div class="notification is-danger is-light">
-                            <h2><strong>Attention !</strong></h2>
+                            <h2 class="title"><strong>Attention !</strong></h2>
                             Connexion impossible<br>Identifiant ou mot de passe incorrect
                         </div>
                         <?php } else {
-                            session_start();
                             $_SESSION['id'] = $result['identifiant'];
                             $_SESSION['pwd'] = $result['mot_de_passe'];
                             $_SESSION['profile'] = $result['user_profile'];
