@@ -10,7 +10,7 @@ catch(Exception $e){
     die('Erreur : ' . $e->getMessage());
 }
 
-if(strlen($_SESSION['id'])>0){
+if(!empty($_SESSION['id'])){
     if($_SESSION['profile']=='Administrateur'){
         header('Location:utilisateurs.php');
     }

@@ -5,6 +5,7 @@ if($_SESSION['profile']=='Administrateur'){
 }
  else{
     include 'shared/header.php';
+    header('Location: score.php');
  }
 
 ?>

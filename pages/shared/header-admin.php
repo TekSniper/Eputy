@@ -27,6 +27,14 @@
                 <a href="#" class="navbar-item">Candidats</a>
                 <a href="#" class="navbar-item">Score</a>
             </div>
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <label for="" class="has-text-primary" style=""><i class="fa-solid fa-user"></i> Utilisateur : <u><?php echo $_SESSION['id']; ?></u></label>
+                </div>
+                <div class="navbar-item">
+                    <a href="logout.php" class="button" style="background-color:#8C3F3F; color:white">Déconnexion</a>
+                </div>
+            </div>
         </div>
     </nav>
 </head>
