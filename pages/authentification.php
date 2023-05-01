@@ -87,7 +87,7 @@ else{
                         $result = $req->fetch();
                         if (!$result) {?>
                         <div class="notification is-danger is-light">
-                            <h2 class="title"><strong>Attention !</strong></h2>
+                            <h2 class="title"><strong><i class="fa-solid fa-circle-exclamation"></i> Attention !</strong></h2>
                             Connexion impossible<br>Identifiant ou mot de passe incorrect
                         </div>
                         <?php } else {
