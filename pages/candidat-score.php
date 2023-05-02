@@ -234,19 +234,19 @@ if ($_SESSION['profile'] == 'Administrateur') {
                             <input type="text" name="ville" id="ville" class="input"
                                 placeholder="Ville de résidence">
                             <span class="icon is-small is-left">
-                                <i class="fa-solid fa-map-location-dot"></i>
+                                <i class="fa-solid fa-city"></i>
                             </span>
                         </p>
                     </div>
                 </div>
                 <div class="column">
                     <div class="field">
-                        <label for="pays" class="label">Ville</label>
+                        <label for="pays" class="label">Pays</label>
                         <p class="control is-expanded has-icons-left">
                             <input type="text" name="pays" id="pays" class="input"
                                 placeholder="Pays de résidence">
                             <span class="icon is-small is-left">
-                                <i class="fa-solid fa-map-location-dot"></i>
+                                <i class="fa-solid fa-globe"></i>
                             </span>
                         </p>
                     </div>
