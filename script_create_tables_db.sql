@@ -1,12 +1,3 @@
-create table utilisateur
-(
-num_user int auto_increment primary key,
-prenom varchar(35),
-nom varchar(35),
-identifiant varchar(25) unique not null,
-mot_de_passe varchar(25) not null,
-user_profile varchar(15)
-)engine=innodb;
 create table candidat
 (
 num_cand int auto_increment primary key,
@@ -29,8 +20,9 @@ quartier varchar(25),
 commune varchar(25),
 ville varchar(25),
 pays varchar(25),
-score decimal(5,2)
+id_score int references score(id_score)
 )engine=innodb;
+
 create table election
 (
 id_election int auto_increment primary key,
@@ -42,6 +34,12 @@ create table tour
 id_tour int auto_increment primary key,
 designation varchar(9),
 id_election int references election(id_election)
+)engine=innodb;
+create table score
+(
+id_score int auto_increment primary key,
+id_tour int references tour(id_tour),
+valeur decimal(5,2)
 )engine=innodb;
 create table postuler
 (
