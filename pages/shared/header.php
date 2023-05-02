@@ -13,6 +13,12 @@
     <title>
         Eputy App
     </title>
+    <style>
+        body{
+            min-height: 100vh;
+            background-color: #D8E6F2;
+        }
+    </style>
     <nav class="navbar has-shadow">
         <div class="navbar-brand">
             <a href="./../index.php" class="navbar-item">
@@ -26,7 +32,7 @@
             </div>
             <div class="navbar-end">
                 <div class="navbar-item">
-                    <label for="" class="has-text-primary" style=""><i class="fa-solid fa-user"></i> Utilisateur : <u><?php echo $_SESSION['id']; ?>
+                    <label for="" class="has-text-primary" style=""><i class="fa-solid fa-user"></i> <u><?php echo $_SESSION['id']; ?>
                         </u></label>
                 </div>
                 <div class="navbar-item">
