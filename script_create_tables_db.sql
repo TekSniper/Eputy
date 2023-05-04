@@ -1,6 +1,4 @@
---create DATABASE if NOT EXISTS eputy_base;
 
---Table structures
 create table candidat
 (
 num_cand int auto_increment primary key,
@@ -84,7 +82,7 @@ CREATE TABLE IF NOT EXISTS `pays` (
 ) ENGINE=innodb  DEFAULT CHARSET=utf8 AUTO_INCREMENT=242 ;
 
 
---Add foreign key constraints
+
 alter table tour add constraint fk_election_tour foreign key(id_election) references election(id_election);
 alter table postuler add constraint fk_candidat_postuler foreign key(num_cand) references candidat(num_cand);
 alter table postuler add constraint fk_election_postuler foreign key(id_election) references election(id_election);
@@ -95,7 +93,7 @@ alter table creation_elec add constraint fk_election_creation foreign key(id_ele
 alter table creation_elec add constraint fk_utilisateur_creation foreign key(num_user) references utilisateur(num_user);
 
 
---Insert contries in pays table
+
 INSERT INTO `pays` (`id`, `code`, `alpha2`, `alpha3`, `nom_en_gb`, `nom_fr_fr`) VALUES
 (1, 4, 'AF', 'AFG', 'Afghanistan', 'Afghanistan'),
 (2, 8, 'AL', 'ALB', 'Albania', 'Albanie'),
