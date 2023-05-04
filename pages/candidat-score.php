@@ -17,6 +17,8 @@ if ($_SESSION['profile'] == 'Administrateur') {
 
 $rep = $db->query("select * from pays");
 
+
+
 ?>
 
 <body>
@@ -290,6 +292,7 @@ $rep = $db->query("select * from pays");
                 echo '';
             }
             else{
+                if(
                 $insert->execute(
                     array(
                         'nom' => $_POST['nom'],
@@ -310,23 +313,29 @@ $rep = $db->query("select * from pays");
                         'ville' => $_POST['ville'],
                         'pays' => $_POST['pays'],
                     )
-                    );
+                )
+                ){
+                    $success_message = 'Le candidat est enregistré avec succès';
+                }
+                else{
+                    $error_message = 'Echec enregistrement du candidat';
+                }
                 
         }
-
-        if(strlen($error_message) > 0){?>
-        <div class="notification is-danger is-light">
-            <h2 class="title"><strong><i class="fa-solid fa-circle-exclamation"></i> Attention !</strong></h2>
-            <?php echo $error_message; ?>
-        </div>
+        if (strlen($error_message) > 0) { ?>
+                <div class="notification is-danger is-light">
+                    <h2 class="title"><strong><i class="fa-solid fa-circle-exclamation"></i> Attention !</strong></h2>
+                    <?php echo $error_message; ?>
+                </div>
         <?php }
 
-        if(strlen($success_message) > 0){?>
-        <div class="notification is-success is-light">
-            <h2 class="title"><strong><i class="fa-solid fa-circle-exclamation"></i> Attention !</strong></h2>
-            <?php echo $success_message; ?>
-        </div>
+        if (strlen($success_message) > 0) { ?>
+                <div class="notification is-success is-light">
+                    <h2 class="title"><strong><i class="fa-solid fa-badge-check"></i> Succès !</strong></h2>
+                    <?php echo $success_message; ?>
+                </div>
         <?php }
+        
         ?>
     </div>
 </body>
