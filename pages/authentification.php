@@ -35,6 +35,7 @@ else{
     
     <link href="../static/css/fontawesome-free-6.3.0-web/css/all.css" rel="stylesheet" />
     <link href="../static/css/fontawesome-free-6.3.0-web/css/all.min.css" rel="stylesheet" />
+    <script src="../static/js/main.js"></script>
     <title>Authentification - Eputy</title>
 </head>
 <body>
@@ -87,6 +88,7 @@ else{
                         $result = $req->fetch();
                         if (!$result) {?>
                         <div class="notification is-danger is-light">
+                            <button class="delete"></button>
                             <h2 class="title"><strong><i class="fa-solid fa-circle-exclamation"></i> Attention !</strong></h2>
                             Connexion impossible<br>Identifiant ou mot de passe incorrect
                         </div>

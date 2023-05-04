@@ -23,6 +23,67 @@ $rep = $db->query("select * from pays");
 
 <body>
     <div class="container">
+        <?php
+            $request = "";
+            /*if(isset($_POST['telephone_2']) or isset($_POST['telephone_3'])){
+            $request = "insert into candidat(nom,postnom,prenom,email,telephone_1,telephone_2,telephone_3,sexe,lieu_de_naissance,date_de_naissance,nationalite,profession,parti_politique,rue,numero,quartier,commune,ville,pays) values (:nom,:postnom,:prenom,:email,:tel1,:tel2,:tel3,:sexe,:lieu_naiss,:date_naiss,:nationalite,:profession,:parti,:rue,:numero,:quartier,:commune,:ville,:pays)";
+            } 
+            else{
+            
+            }*/
+            $request = "insert into candidat(nom,postnom,prenom,email,telephone_1,sexe,lieu_de_naissance,date_de_naissance,nationalite,profession,parti_politique,rue,numero,quartier,commune,ville,pays) values (:nom,:postnom,:prenom,:email,:tel,:sexe,:lieu_naiss,:date_naiss,:nationalite,:profession,:parti,:rue,:numero,:quartier,:commune,:ville,:pays)";
+            $insert=$db->prepare($request);
+            if(!isset($_POST['nom']) && !isset($_POST['postnom']) && !isset($_POST['prenom']) && !isset($_POST['email']) && !isset($_POST['telephone_1']) && !isset($_POST['sexe']) && !isset($_POST['lieu_naissance']) && !isset($_POST['date_naissance']) && !isset($_POST['nationalite']) && !isset($_POST['profession']) && !isset($_POST['parti']) && !isset($_POST['rue']) && !isset($_POST['numero']) && !isset($_POST['quartier']) && !isset($_POST['commune']) && !isset($_POST['ville']) && !isset($_POST['pays'])){
+                echo '';
+            }
+            else{
+                if(
+                $insert->execute(
+                    array(
+                        'nom' => $_POST['nom'],
+                        'postnom' => $_POST['postnom'],
+                        'prenom' => $_POST['prenom'],
+                        'email' => $_POST['email'],
+                        'tel' => $_POST['telephone_1'],
+                        'sexe' => $_POST['sexe'],
+                        'lieu_naiss' => $_POST['lieu_naissance'],
+                        'date_naiss' => $_POST['date_naissance'],
+                        'nationalite' => $_POST['nationalite'],
+                        'profession' => $_POST['profession'],
+                        'parti' => $_POST['parti'],
+                        'rue' => $_POST['rue'],
+                        'numero' => $_POST['numero'],
+                        'quartier' => $_POST['quartier'],
+                        'commune' => $_POST['commune'],
+                        'ville' => $_POST['ville'],
+                        'pays' => $_POST['pays'],
+                    )
+                )
+                ){
+                    $success_message = 'Le candidat est enregistré avec succès';
+                }
+                else{
+                    $error_message = 'Echec enregistrement du candidat';
+                }
+                
+        }
+        if (strlen($error_message) > 0) { ?>
+                <div class="notification is-danger is-light">
+                    <button class="delete"></button>
+                    <h2 class="title"><strong><i class="fa-solid fa-circle-exclamation"></i> Attention !</strong></h2>
+                    <?php echo $error_message; ?>
+                </div>
+        <?php }
+
+        if (strlen($success_message) > 0) { ?>
+                <div class="notification is-success is-light">
+                    <button class="delete"></button>
+                    <h2 class="title"><strong><i class="fa-solid fa-badge-check"></i> Succès !</strong></h2>
+                    <?php echo $success_message; ?>
+                </div>
+        <?php }
+        
+        ?>
         <h3 class="title" style="color:#1C3D59; margin-top:25px">
             Identification du Candidat
         </h3>
@@ -278,64 +339,6 @@ $rep = $db->query("select * from pays");
                 </div>
             </div>
         </form>
-        <?php
-            $request = "";
-            /*if(isset($_POST['telephone_2']) or isset($_POST['telephone_3'])){
-            $request = "insert into candidat(nom,postnom,prenom,email,telephone_1,telephone_2,telephone_3,sexe,lieu_de_naissance,date_de_naissance,nationalite,profession,parti_politique,rue,numero,quartier,commune,ville,pays) values (:nom,:postnom,:prenom,:email,:tel1,:tel2,:tel3,:sexe,:lieu_naiss,:date_naiss,:nationalite,:profession,:parti,:rue,:numero,:quartier,:commune,:ville,:pays)";
-            } 
-            else{
-            
-            }*/
-            $request = "insert into candidat(nom,postnom,prenom,email,telephone_1,sexe,lieu_de_naissance,date_de_naissance,nationalite,profession,parti_politique,rue,numero,quartier,commune,ville,pays) values (:nom,:postnom,:prenom,:email,:tel,:sexe,:lieu_naiss,:date_naiss,:nationalite,:profession,:parti,:rue,:numero,:quartier,:commune,:ville,:pays)";
-            $insert=$db->prepare($request);
-            if(!isset($_POST['nom']) && !isset($_POST['postnom']) && !isset($_POST['prenom']) && !isset($_POST['email']) && !isset($_POST['telephone_1']) && !isset($_POST['sexe']) && !isset($_POST['lieu_naissance']) && !isset($_POST['date_naissance']) && !isset($_POST['nationalite']) && !isset($_POST['profession']) && !isset($_POST['parti']) && !isset($_POST['rue']) && !isset($_POST['numero']) && !isset($_POST['quartier']) && !isset($_POST['commune']) && !isset($_POST['ville']) && !isset($_POST['pays'])){
-                echo '';
-            }
-            else{
-                if(
-                $insert->execute(
-                    array(
-                        'nom' => $_POST['nom'],
-                        'postnom' => $_POST['postnom'],
-                        'prenom' => $_POST['prenom'],
-                        'email' => $_POST['email'],
-                        'tel' => $_POST['telephone_1'],
-                        'sexe' => $_POST['sexe'],
-                        'lieu_naiss' => $_POST['lieu_naissance'],
-                        'date_naiss' => $_POST['date_naissance'],
-                        'nationalite' => $_POST['nationalite'],
-                        'profession' => $_POST['profession'],
-                        'parti' => $_POST['parti'],
-                        'rue' => $_POST['rue'],
-                        'numero' => $_POST['numero'],
-                        'quartier' => $_POST['quartier'],
-                        'commune' => $_POST['commune'],
-                        'ville' => $_POST['ville'],
-                        'pays' => $_POST['pays'],
-                    )
-                )
-                ){
-                    $success_message = 'Le candidat est enregistré avec succès';
-                }
-                else{
-                    $error_message = 'Echec enregistrement du candidat';
-                }
-                
-        }
-        if (strlen($error_message) > 0) { ?>
-                <div class="notification is-danger is-light">
-                    <h2 class="title"><strong><i class="fa-solid fa-circle-exclamation"></i> Attention !</strong></h2>
-                    <?php echo $error_message; ?>
-                </div>
-        <?php }
-
-        if (strlen($success_message) > 0) { ?>
-                <div class="notification is-success is-light">
-                    <h2 class="title"><strong><i class="fa-solid fa-badge-check"></i> Succès !</strong></h2>
-                    <?php echo $success_message; ?>
-                </div>
-        <?php }
         
-        ?>
     </div>
 </body>

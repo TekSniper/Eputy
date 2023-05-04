@@ -1,8 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poltawski+Nowy&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300&display=swap');
 
-body{
-    font-family: 'roboto', arial, helvetica, sans-serif;
+
+*{
+    font-family: 'Lato','Roboto', 'Raleway', arial, helvetica, sans-serif;
     
+    
+}
+body{
     margin:0px;
     padding:0px;
 }

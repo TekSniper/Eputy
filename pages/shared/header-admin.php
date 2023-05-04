@@ -10,6 +10,8 @@
     
     <link href="./../static/css/fontawesome-free-6.3.0-web/css/all.css" rel="stylesheet" />
     <link href="./../static/css/fontawesome-free-6.3.0-web/css/all.min.css" rel="stylesheet" />
+    
+    <script src="./../static/js/main.js"></script>
     <title>Eputy App</title>
     <style>
         body{
@@ -17,19 +19,19 @@
             background-color: #D8E6F2;
         }
     </style>
-    <nav class="navbar has-shadow">
+    <nav class="navbar has-shadow" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
             <img src="./../static/img/Eputy Logo.png" alt="Logo Eputy" class="navbar-item" width="50px" height="50px">
-            <div class="navbar-burger">
+            <div class="navbar-burger" role="button" aria-label="menu" aria-expanded="false" data-target="navMenu">
                 <span></span>
                 <span></span>
                 <span></span>
             </div>
         </div>
-        <div class="navbar-menu">
+        <div class="navbar-menu is-active" id="navMenu">
             <div class="navbar-start">
-                <a href="#" class="navbar-item">Nouvel Utilisateur</a>
-                <a href="#" class="navbar-item">Elections</a>
+                <a href="./../pages/ajout-utilisateur.php" class="navbar-item">Nouvel Utilisateur</a>
+                <a href="./../pages/elections.php" class="navbar-item">Elections</a>
                 <a href="./../pages/candidat-score.php" class="navbar-item">Candidats</a>
                 <a href="./../pages/score.php" class="navbar-item">Score</a>
             </div>
