@@ -13,13 +13,13 @@ sexe char(1),
 lieu_de_naissance varchar(35),
 date_de_naissance date,
 nationalite varchar(35),
-profession varchar(35),
+profession varchar(45),
 parti_politique varchar(50),
-rue varchar(25),
+rue varchar(35),
 numero varchar(6),
-quartier varchar(25),
-commune varchar(25),
-ville varchar(25),
+quartier varchar(35),
+commune varchar(35),
+ville varchar(45),
 pays varchar(45)
 )engine=innodb;
 
