@@ -2,6 +2,7 @@
 session_start();
 $error_message = "";
 $success_message = "";
+$warning_message = "";
 try {
     $db = new PDO('mysql:host=localhost;dbname=eputy_base', 'root', '');
 } catch (Exception $e) {
@@ -28,6 +29,37 @@ $rep = $db->query("select * from pays");
                 <h3 class="title" style="color:#1C3D59; margin-top:25px">
                     Création utilisateur
                 </h3>
+                <?php
+                if(!isset($_POST['prenom']) && !isset($_POST['nom']) && !isset($_POST['identifiant']) && !isset($_POST['pwd'])){
+                    echo '';
+                }
+                else{
+                    if($_POST['pwd'] != $_POST['confirm']){ 
+                        $warning_message = 'Les mots de passe doivent être identiques';
+                    }
+                }
+
+                if(strlen($warning_message)>0){ ?>
+                    <div class="notification is-warning is-light">
+                    <button class="delete"></button>
+                    <h2 class="title"><strong><i class="fa-solid fa-circle-exclamation"></i> Attention !</strong></h2>
+                    <?php echo $warning_message; ?>
+                </div>
+                <?php }
+                else if(strlen($error_message)>0){ ?>
+                    <div class="notification is-danger is-light">
+                    <button class="delete"></button>
+                    <h2 class="title"><strong><i class="fa-solid fa-circle-exclamation"></i> Erreur ! !</strong></h2>
+                    <?php echo $error_message; ?>
+                </div>
+                <?php }
+                else if(strlen($success_message)>0){ ?>
+                <div class="notification is-success is-light">
+                    <button class="delete"></button>
+                    <h2 class="title"><strong><i class="fa-solid fa-circle-exclamation"></i> Succes ! !</strong></h2>
+                    <?php echo $success_message; ?>
+                </div>
+                <?php } ?>
                 <form action="" method="post" class="box">
                     <div class="field">
                         <label class="label" for="prenom">Prénom</label>
@@ -78,6 +110,19 @@ $rep = $db->query("select * from pays");
                             </span>
                         </div>
                     </div>
+                    <div class="field">
+                        <label for="" class="label">Profile</label>
+                        <div class="control">
+                            <label class="radio">
+                                <input type="radio" name="profile" value="Administrateur">
+                                Administrateur
+                            </label>
+                            <label class="radio">
+                                <input type="radio" name="profile" value="Standard">
+                                Standard
+                            </label>
+                        </div>
+                    </div>
                     <div class="field is-grouped">
                         <div class="control">
                             <input type="submit" class="button" value="Créer l'utilisateur"
@@ -85,16 +130,6 @@ $rep = $db->query("select * from pays");
                         </div>
                     </div>
                 </form>
-                <?php
-                if(!isset($_POST['prenom']) && !isset($_POST['nom']) && !isset($_POST['identifiant']) && !isset($_POST['pwd'])){
-                    echo '';
-                }
-                else{
-                    if($_POST['pwd'] != $_POST['confirm']){
-                        echo 'Les mots de passe doivent être identiques';
-                    }
-                }
-                ?>
             </div>
         </div>
     </div>

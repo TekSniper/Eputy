@@ -30,7 +30,14 @@
         </div>
         <div class="navbar-menu is-active" id="navMenu">
             <div class="navbar-start">
-                <a href="./../pages/ajout-utilisateur.php" class="navbar-item">Nouvel Utilisateur</a>
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a href="#" class="navbar-item">Utilisateurs</a>
+                    <div class="navbar-dropdown">
+                        <a href="./../pages/utilisateurs.php" class="navbar-item">Liste des Utilisateurs</a>
+                        <a href="./../pages/ajout-utilisateur.php" class="navbar-item">Nouvel Utilisateur</a>
+                    </div>
+                </div>
+                
                 <a href="./../pages/elections.php" class="navbar-item">Elections</a>
                 <a href="./../pages/candidat-score.php" class="navbar-item">Candidats</a>
                 <a href="./../pages/score.php" class="navbar-item">Score</a>

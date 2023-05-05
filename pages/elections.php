@@ -23,6 +23,10 @@ $rep = $db->query("select * from pays");
 
 <body>
     <div class="container">
+        <?php
+        
+
+?>
         <h3 class="title" style="color:#1C3D59; margin-top:25px">
             Création Edition des élections
         </h3>
