@@ -37,6 +37,22 @@ $rep = $db->query("select * from pays");
                     if($_POST['pwd'] != $_POST['confirm']){ 
                         $warning_message = 'Les mots de passe doivent être identiques';
                     }
+                    else{
+                        if(!isset($_POST['profile'])){
+                            $warning_message = "Il faut sélectionner le profile d'utilisateur";
+                        }
+                        else{
+                            $insert = $db->prepare('insert into utilisateur(prenom,nom,identifiant,mot_de_passe,user_profile) values(:prenom,:nom,:identifiant,:pwd,:profile)');
+                            if($insert->execute(
+                                array('prenom' => $_POST['prenom'], 'nom' => $_POST['nom'], 'identifiant' => $_POST['identifiant'], 'pwd' => $_POST['pwd'], 'profile' => $_POST['profile'])
+                            )){
+                                $success_message = 'Utilisateur créé avec succès !';
+                            }
+                            else{
+                                $error_message = 'Erreur création utilisateur !';
+                            }
+                        }
+                    }
                 }
 
                 if(strlen($warning_message)>0){ ?>
@@ -49,14 +65,14 @@ $rep = $db->query("select * from pays");
                 else if(strlen($error_message)>0){ ?>
                     <div class="notification is-danger is-light">
                     <button class="delete"></button>
-                    <h2 class="title"><strong><i class="fa-solid fa-circle-exclamation"></i> Erreur ! !</strong></h2>
+                    <h2 class="title"><strong><i class="fa-solid fa-circle-exclamation"></i> Erreur !</strong></h2>
                     <?php echo $error_message; ?>
                 </div>
                 <?php }
                 else if(strlen($success_message)>0){ ?>
                 <div class="notification is-success is-light">
                     <button class="delete"></button>
-                    <h2 class="title"><strong><i class="fa-solid fa-circle-exclamation"></i> Succes ! !</strong></h2>
+                    <h2 class="title"><strong><i class="fa-solid fa-circle-exclamation"></i> Succes !</strong></h2>
                     <?php echo $success_message; ?>
                 </div>
                 <?php } ?>
