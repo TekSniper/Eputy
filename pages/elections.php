@@ -15,7 +15,7 @@ if ($_SESSION['profile'] == 'Administrateur') {
     header('Location: score.php');
 }
 
-$rep = $db->query("select * from pays");
+//$rep = $db->query("select * from pays");
 
 
 
@@ -24,6 +24,62 @@ $rep = $db->query("select * from pays");
 <body>
     <div class="container">
         <?php
+        if(!isset($_POST['edition']) or !isset($_POST['date_elect'])){
+            echo '';
+        }
+        else{
+            $requete = $db->query("select * from election");
+
+        $reponse = $requete->fetch();
+        if(!$reponse){
+            $num_user = 0;
+            $requete = $db->prepare("select * from utilisateur where identifiant = :identifiant");
+            $requete->execute(
+                array('identifiant' => $_SESSION['id'])
+            );
+            if($rows=$requete->fetch()) {
+                $num_user = $rows[0];
+            }
+            $insert = $db->prepare("insert into election(edition,date_election,num_user) values(:edition,:date,:num_user)");
+            if($insert->execute(
+                array('edition' => $_POST['edition'], 'date' => $_POST['date_elect'], 'num_user' => $num_user)
+            )){
+                $success_message = "Election créée avec succès";
+            }
+            else{
+                $error_message = "Erreur créeation élection !";
+            }
+        }
+        else{
+            $etat = $db->prepare("select * from election where etat=:etat");
+            $etat->execute(
+                array('etat' => 'En cours')
+            );
+            $isTrue = $etat->fetch();
+            if($isTrue){
+                $error_message = 'Les élections sont en cours !\nVous ne pouvez pas créer une nouvelle édition !';
+            }
+            else{
+                $num_user = 0;
+            $requete = $db->prepare("select * from utilisateur where identifiant = :identifiant");
+            $requete->execute(
+                array('identifiant' => $_SESSION['id'])
+            );
+            if($rows=$requete->fetch()) {
+                $num_user = $rows[0];
+            }
+            $insert = $db->prepare("insert into election(edition,date_election,num_user) values(:edition,:date,:num_user)");
+            if($insert->execute(
+                array('edition' => $_POST['edition'], 'date' => $_POST['date_elect'], 'num_user' => $num_user)
+            )){
+                $success_message = "Election créée avec succès";
+            }
+            else{
+                $error_message = "Erreur créeation élection !";
+            }
+            }
+        }
+        }
         
 
 ?>
