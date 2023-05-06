@@ -8,12 +8,18 @@ try {
     die('Erreur : ' . $e->getMessage());
 }
 
-if ($_SESSION['profile'] == 'Administrateur') {
+if(!empty($_SESSION['id'])){
+    if ($_SESSION['profile'] == 'Administrateur') {
     include 'shared/header-admin.php';
 } else {
     include 'shared/header.php';
     header('Location: score.php');
 }
+}
+else{
+    header('location:authentification.php');
+}
+
 
 //$rep = $db->query("select * from pays");
 
