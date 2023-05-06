@@ -22,7 +22,7 @@
     </style>
     <nav class="navbar has-shadow" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
-                <img src="./../static/img/Eputy Logo.png" alt="Logo Eputy" >
+                <img src="./../static/img/Eputy Logo.png" alt="Logo Eputy" class="navbar-item" width="50px" height="50px">
             <div class="navbar-burger" role="button" aria-label="menu" aria-expanded="false" data-target="navMenu">
                 <span></span>
                 <span></span>
