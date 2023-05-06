@@ -57,7 +57,7 @@ if ($_SESSION['profile'] == 'Administrateur') {
             );
             $isTrue = $etat->fetch();
             if($isTrue){
-                $error_message = 'Les élections sont en cours !\nVous ne pouvez pas créer une nouvelle édition !';
+                $error_message = 'Les élections sont en cours ! Vous ne pouvez pas créer une nouvelle édition !';
             }
             else{
                 $num_user = 0;
@@ -82,6 +82,21 @@ if ($_SESSION['profile'] == 'Administrateur') {
         }
         
 
+        if(strlen($error_message)>0){ ?>
+        <div class="notification is-danger is-light">
+            <button class="delete"></button>
+            <h4 class="title">Attention !</h4>
+            <?php echo $error_message; ?>
+        </div>
+        <?php }
+        if(strlen($success_message)>0){ ?>
+            <div class="notification is-success is-light">
+            <button class="delete"></button>
+            <h4 class="title">Success !</h4>
+            <?php echo $success_message; ?>
+        </div>
+        <?php }
+
 ?>
         <h3 class="title" style="color:#1C3D59; margin-top:25px">
             Création Edition des élections
@@ -92,7 +107,8 @@ if ($_SESSION['profile'] == 'Administrateur') {
                     <div class="field">
                         <label for="edition" class="label">Edition</label>
                         <p class="control is-expanded has-icons-left">
-                            <input class="input" type="text" placeholder="Edition (Ex: Ed. 2018)" id="edition" name="edition" required>
+                            <input class="input" type="text" placeholder="Edition (Ex: Ed. 2018)" id="edition"
+                                name="edition" required>
                             <span class="icon is-small is-left">
                                 <i class="fa-solid fa-sliders"></i>
                             </span>
