@@ -52,9 +52,4 @@
             </div>
         </div>
     </nav>
-    <aside class="menu">
-        <p class="menu-label">
-            Espace Admin
-        </p>
-    </aside>
 </head>
