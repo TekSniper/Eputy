@@ -83,7 +83,7 @@ function CreationElection($edition,$date){
         </div>
         <?php }
         if(strlen($success_message)>0){ ?>
-            <div class="notification is-success is-light">
+        <div class="notification is-success is-light">
             <button class="delete"></button>
             <h4 class="title">Success !</h4>
             <?php echo $success_message; ?>
