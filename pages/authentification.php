@@ -33,8 +33,8 @@ else{
     <link rel="stylesheet" href="../static/css/node_modules/bulma/css/bulma.min.css">
     <link rel="icon" href="../static/img/Eputy Logo.ico" type="image/icon">
     
-    <link href="../static/css/fontawesome-free-6.3.0-web/css/all.css" rel="stylesheet" />
-    <link href="../static/css/fontawesome-free-6.3.0-web/css/all.min.css" rel="stylesheet" />
+    <link href="../static/fontawesome-free-6.3.0-web/css/all.css" rel="stylesheet" />
+    <link href="../static/fontawesome-free-6.3.0-web/css/all.min.css" rel="stylesheet" />
     <script src="../static/js/main.js"></script>
     <title>Authentification - Eputy</title>
 </head>

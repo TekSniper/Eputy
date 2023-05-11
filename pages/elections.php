@@ -24,6 +24,7 @@ else{
 //$rep = $db->query("select * from pays");
 
 function CreationElection($edition,$date){
+    $db = new PDO('mysql:host=localhost;dbname=eputy_base', 'root', '');
     $num_user = 0;
             $requete = $db->prepare("select * from utilisateur where identifiant = :identifiant");
             $requete->execute(
@@ -33,14 +34,19 @@ function CreationElection($edition,$date){
                 $num_user = $rows[0];
             }
             $insert = $db->prepare("insert into election(edition,date_election,num_user) values(:edition,:date,:num_user)");
-            if($insert->execute(
+            $insert->execute(
                 array('edition' => $edition, 'date' => $date, 'num_user' => $num_user)
-            )){
-                $success_message = "Election créée avec succès";
+            );
+            $i = $insert->rowCount();
+            if($i > 0){
+                
+                return $i;
             }
             else{
-                $error_message = "Erreur créeation élection !";
+                
+                return $i;
             }
+            
 }
 
 
@@ -57,7 +63,13 @@ function CreationElection($edition,$date){
 
         $reponse = $requete->fetch();
         if(!$reponse){
-            CreationElection($_POST['edition'],$_POST['date_elect']);
+            $c = CreationElection($_POST['edition'],$_POST['date_elect']);
+            if($c > 0){
+                $success_message="Election créée avec succès";
+            }
+            else{
+                $error_message="Erreur créeation élection !";
+            }
         }
         else{
             $etat = $db->prepare("select * from election where etat=:etat");
@@ -69,7 +81,13 @@ function CreationElection($edition,$date){
                 $error_message = 'Les élections sont en cours ! Vous ne pouvez pas créer une nouvelle édition !';
             }
             else{
-                CreationElection($_POST['edition'],$_POST['date_elect']);
+                $c = CreationElection($_POST['edition'],$_POST['date_elect']);
+                if($c > 0){
+                    $success_message="Election créée avec succès";
+                }
+                else{
+                    $error_message="Erreur créeation élection !";
+                }
             }
         }
         }
