@@ -37,34 +37,53 @@ $rep = $db->query("select * from pays");
                 echo '';
             }
             else{
-                if(
-                $insert->execute(
-                    array(
-                        'nom' => $_POST['nom'],
-                        'postnom' => $_POST['postnom'],
-                        'prenom' => $_POST['prenom'],
-                        'email' => $_POST['email'],
-                        'tel' => $_POST['telephone_1'],
-                        'sexe' => $_POST['sexe'],
-                        'lieu_naiss' => $_POST['lieu_naissance'],
-                        'date_naiss' => $_POST['date_naissance'],
-                        'nationalite' => $_POST['nationalite'],
-                        'profession' => $_POST['profession'],
-                        'parti' => $_POST['parti'],
-                        'rue' => $_POST['rue'],
-                        'numero' => $_POST['numero'],
-                        'quartier' => $_POST['quartier'],
-                        'commune' => $_POST['commune'],
-                        'ville' => $_POST['ville'],
-                        'pays' => $_POST['pays'],
-                    )
-                )
-                ){
-                    $success_message = 'Le candidat est enregistré avec succès';
+                $verifElectionStatus = $db->prepare("select * from election where etat =:statut");
+                $isTrue = $verifElectionStatus->execute(array('statut' => 'En cours'));
+                $verifScore = $db->prepare("select count(*) from score, tour, election where score.id_tour=tour.id_tour and tour.id_election = election.id_election and election.etat=:statut");
+                if ($isTrue->fetch()) {
+                    
+                    
+                    $verif = $verifScore->execute(array('statut' =>'En cours'));
+                    
+                    if ($verif->fetch()) {
+                        $error_message = "Vous ne pouvez pas ajouter un candidat pendant que les scores sont validés";
+                    }
+                    else{
+                            if(
+                                $insert->execute(
+                                            array(
+                                                    'nom' => $_POST['nom'],
+                                                    'postnom' => $_POST['postnom'],
+                                                    'prenom' => $_POST['prenom'],
+                                                    'email' => $_POST['email'],
+                                                    'tel' => $_POST['telephone_1'],
+                                                    'sexe' => $_POST['sexe'],
+                                                    'lieu_naiss' => $_POST['lieu_naissance'],
+                                                    'date_naiss' => $_POST['date_naissance'],
+                                                    'nationalite' => $_POST['nationalite'],
+                                                    'profession' => $_POST['profession'],
+                                                    'parti' => $_POST['parti'],
+                                                    'rue' => $_POST['rue'],
+                                                    'numero' => $_POST['numero'],
+                                                    'quartier' => $_POST['quartier'],
+                                                    'commune' => $_POST['commune'],
+                                                    'ville' => $_POST['ville'],
+                                                    'pays' => $_POST['pays'],
+                                                )
+                                            )
+                    ){
+                        $success_message = 'Le candidat est enregistré avec succès';
+                    }
+                    else{
+                        $error_message = 'Echec enregistrement du candidat';
+                    }
+                    }
+                    
                 }
-                else{
-                    $error_message = 'Echec enregistrement du candidat';
+                else {
+                    $error_message = "Vous ne pouvez pas créer un cadidat sans avant de créer une nouvelle édition des élections";
                 }
+                
                 
         }
         if (strlen($error_message) > 0) { ?>
