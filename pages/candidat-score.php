@@ -3,7 +3,8 @@ session_start();
 $error_message = "";
 $success_message = "";
 try {
-    $db = new PDO('mysql:host=localhost;dbname=eputy_base', 'root', '');
+    //$db = new PDO('mysql:host=localhost;port=3306;dbname=eputy_base', 'root', '');
+    $db = new PDO('pgsql:host=localhost;port=5432;dbname=eputy_base', 'postgres', 'secret');
 } catch (Exception $e) {
     die('Erreur : ' . $e->getMessage());
 }
@@ -24,7 +25,7 @@ $rep = $db->query("select * from pays");
 <body>
     <div class="container">
         <?php
-            $request = "";
+        
             /*if(isset($_POST['telephone_2']) or isset($_POST['telephone_3'])){
             $request = "insert into candidat(nom,postnom,prenom,email,telephone_1,telephone_2,telephone_3,sexe,lieu_de_naissance,date_de_naissance,nationalite,profession,parti_politique,rue,numero,quartier,commune,ville,pays) values (:nom,:postnom,:prenom,:email,:tel1,:tel2,:tel3,:sexe,:lieu_naiss,:date_naiss,:nationalite,:profession,:parti,:rue,:numero,:quartier,:commune,:ville,:pays)";
             } 
@@ -42,21 +43,19 @@ $rep = $db->query("select * from pays");
                 if ($isTrue) {
                     
                     
-                    $verifScore = $db->prepare("select count(*) from score, tour, election where score.id_tour=tour.id_tour and tour.id_election = election.id_election and election.etat=:status");
+                    $verifScore = $db->prepare("select * from score, tour, election where score.id_tour=tour.id_tour and tour.id_election = election.id_election and election.etat=:status");
                     $verifScore->execute(array('status' =>'En cours'));
                     $verif = $verifScore->fetch();
                     if ($verif) {
                         $error_message = "Vous ne pouvez pas ajouter un candidat pendant que les scores sont validés";
                     }
                     else{
-                        $request = "insert into candidat(nom,postnom,prenom,email,telephone_1,sexe,lieu_de_naissance,date_de_naissance,nationalite,profession,parti_politique,rue,numero,quartier,commune,ville,pays) values (:nom,:postnom,:prenom,:email,:tel,:sexe,:lieu_naiss,:date_naiss,:nationalite,:profession,:parti,:rue,:numero,:quartier,:commune,:ville,:pays)";
-                        $insert=$db->prepare($request);
+                        //$request = "insert into candidat(nom,postnom,prenom,email,telephone_1,sexe,lieu_de_naissance,date_de_naissance,nationalite,profession,parti_politique,rue,numero,quartier,commune,ville,pays) values (:nom,:postnom,:prenom,:email,:tel,:sexe,:lieu_naiss,:date_naiss,:nationalite,:profession,:parti,:rue,:numero,:quartier,:commune,:ville,:pays)";
+                        $insert=$db->prepare("insert into candidat(nom,postnom,prenom,email,telephone_1,sexe,lieu_de_naissance,date_de_naissance,nationalite,profession,parti_politique,rue,numero,quartier,commune,ville,pays) values (:nom,:postnom,:prenom,:email,:tel,:sexe,:lieu_naiss,:date_naiss,:nationalite,:profession,:parti,:rue,:numero,:quartier,:commune,:ville,:pays)");
                             if(
                                 $insert->execute(
                                             array(
-                                                    'nom' => $_POST['nom'],
-                                                    'postnom' => $_POST['postnom'],
-                                                    'prenom' => $_POST['prenom'],
+                                                    'nom' => $_POST['nom'], 'postnom' => $_POST['postnom'],'prenom' => $_POST['prenom'],
                                                     'email' => $_POST['email'],
                                                     'tel' => $_POST['telephone_1'],
                                                     'sexe' => $_POST['sexe'],
@@ -83,7 +82,7 @@ $rep = $db->query("select * from pays");
                     
                 }
                 else {
-                    $error_message = "Vous ne pouvez pas créer un cadidat sans avant de créer une nouvelle édition des élections";
+                    $error_message = "Vous ne pouvez pas créer un cadidat avant de créer une nouvelle édition des élections";
                 }
                 
                 

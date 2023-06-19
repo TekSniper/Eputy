@@ -1,7 +1,7 @@
 <?php 
 session_start();
 try {
-    $db = new PDO('mysql:host=localhost;dbname=eputy_base','root','');
+    $db = new PDO('pgsql:host=localhost;port=5432;dbname=eputy_base','postgres','secret');
 }
 catch (Exception $e){
     die('Erreur :'.$e->getMessage());
