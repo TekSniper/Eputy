@@ -31,24 +31,26 @@ $rep = $db->query("select * from pays");
             else{
             
             }*/
-            $request = "insert into candidat(nom,postnom,prenom,email,telephone_1,sexe,lieu_de_naissance,date_de_naissance,nationalite,profession,parti_politique,rue,numero,quartier,commune,ville,pays) values (:nom,:postnom,:prenom,:email,:tel,:sexe,:lieu_naiss,:date_naiss,:nationalite,:profession,:parti,:rue,:numero,:quartier,:commune,:ville,:pays)";
-            $insert=$db->prepare($request);
+            
             if(!isset($_POST['nom']) && !isset($_POST['postnom']) && !isset($_POST['prenom']) && !isset($_POST['email']) && !isset($_POST['telephone_1']) && !isset($_POST['sexe']) && !isset($_POST['lieu_naissance']) && !isset($_POST['date_naissance']) && !isset($_POST['nationalite']) && !isset($_POST['profession']) && !isset($_POST['parti']) && !isset($_POST['rue']) && !isset($_POST['numero']) && !isset($_POST['quartier']) && !isset($_POST['commune']) && !isset($_POST['ville']) && !isset($_POST['pays'])){
                 echo '';
             }
             else{
-                $verifElectionStatus = $db->prepare("select * from election where etat =:statut");
-                $isTrue = $verifElectionStatus->execute(array('statut' => 'En cours'));
-                $verifScore = $db->prepare("select count(*) from score, tour, election where score.id_tour=tour.id_tour and tour.id_election = election.id_election and election.etat=:statut");
-                if ($isTrue->fetch()) {
+                $verifElectionStatus = $db->prepare("select * from election where etat=:status");
+                $verifElectionStatus->execute(array('status' => 'En cours'));
+                $isTrue = $verifElectionStatus->fetch();
+                if ($isTrue) {
                     
                     
-                    $verif = $verifScore->execute(array('statut' =>'En cours'));
-                    
-                    if ($verif->fetch()) {
+                    $verifScore = $db->prepare("select count(*) from score, tour, election where score.id_tour=tour.id_tour and tour.id_election = election.id_election and election.etat=:status");
+                    $verifScore->execute(array('status' =>'En cours'));
+                    $verif = $verifScore->fetch();
+                    if ($verif) {
                         $error_message = "Vous ne pouvez pas ajouter un candidat pendant que les scores sont validés";
                     }
                     else{
+                        $request = "insert into candidat(nom,postnom,prenom,email,telephone_1,sexe,lieu_de_naissance,date_de_naissance,nationalite,profession,parti_politique,rue,numero,quartier,commune,ville,pays) values (:nom,:postnom,:prenom,:email,:tel,:sexe,:lieu_naiss,:date_naiss,:nationalite,:profession,:parti,:rue,:numero,:quartier,:commune,:ville,:pays)";
+                        $insert=$db->prepare($request);
                             if(
                                 $insert->execute(
                                             array(
