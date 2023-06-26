@@ -36,7 +36,7 @@ function CandidatParticiper($num_cand,$id_tour){
     $clDb = new DatabaseConnection();
     $my_db = $clDb->GetConnectionString();
 
-    $insert = $my_db->prepare("INSERT INTO tour values(:candidat,:tour)");
+    $insert = $my_db->prepare("INSERT INTO participer values(:candidat,:tour)");
     $insert->execute(
         array('candidat' => $num_cand,'tour' => $id_tour)
     );
