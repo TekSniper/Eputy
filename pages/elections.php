@@ -2,12 +2,17 @@
 session_start();
 $error_message = "";
 $success_message = "";
-try {
-    $db = new PDO('pgsql:host=localhost;port=5432;dbname=eputy_base', 'postgres', 'secret');
-} catch (Exception $e) {
-    die('Erreur : ' . $e->getMessage());
-}
+include_once 'shared/DatabaseConnection.php';
+$clDb = new DatabaseConnection();
+$db = $clDb->GetConnectionString();
 
+
+/*try {
+        $db = new PDO('pgsql:host=localhost;port=5432;dbname=eputy_base', 'postgres', 'secret');
+    } catch (Exception $e) {
+        die('Erreur : ' . $e->getMessage());
+    }
+*/
 if(!empty($_SESSION['id'])){
     if ($_SESSION['profile'] == 'Administrateur') {
     include 'shared/header-admin.php';
@@ -22,9 +27,28 @@ else{
 
 
 //$rep = $db->query("select * from pays");
+function CreateTourElection($designation,$id_election){
+    $ClDb = new DatabaseConnection();
+    $db = $ClDb->GetConnectionString();    
+    
+
+    $insert = $db->prepare("insert into tour(designation,id_election) values(:designation,:idelection)");
+    $insert->execute(
+        array('designation' => $designation, 'idelection' => $id_election)
+    );
+    $i = $insert->rowCount();
+    if($i!=0){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
 
 function CreationElection($edition,$date){
-    $db = new PDO('mysql:host=localhost;dbname=eputy_base', 'root', '');
+    $ClDb = new DatabaseConnection();
+    $db = $ClDb->GetConnectionString();
     $num_user = 0;
             $requete = $db->prepare("select * from utilisateur where identifiant = :identifiant");
             $requete->execute(
@@ -33,14 +57,25 @@ function CreationElection($edition,$date){
             if($rows=$requete->fetch()) {
                 $num_user = $rows[0];
             }
-            $insert = $db->prepare("insert into election(edition,date_election,num_user) values(:edition,:date,:num_user)");
+            $insert = $db->prepare("insert into election(edition,date_election,etat,num_user) values(:edition,:date,:status,:num_user)");
             $insert->execute(
-                array('edition' => $edition, 'date' => $date, 'num_user' => $num_user)
+                array('edition' => $edition, 'date' => $date, 'status' => 'En cours', 'num_user' => $num_user)
             );
             $i = $insert->rowCount();
             if($i > 0){
-                
-                return $i;
+                $req = $db->prepare("select max(id_election) from election");
+                $req->execute();
+                $id_election = 0;
+                if($r=$req->fetch()){
+                    $id_election = $r[0];
+                }
+                $tour = CreateTourElection('1er Tour',$id_election);
+                if(!$tour){
+                    $error_message = "Erreur de création du premier tour !";
+                }
+                else{
+                    return $i;
+                }                
             }
             else{
                 

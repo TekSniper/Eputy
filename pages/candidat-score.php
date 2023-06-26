@@ -2,23 +2,52 @@
 session_start();
 $error_message = "";
 $success_message = "";
-try {
-    //$db = new PDO('mysql:host=localhost;port=3306;dbname=eputy_base', 'root', '');
-    $db = new PDO('pgsql:host=localhost;port=5432;dbname=eputy_base', 'postgres', 'secret');
-} catch (Exception $e) {
-    die('Erreur : ' . $e->getMessage());
-}
+include_once 'shared/DatabaseConnection.php';
+
 
 if ($_SESSION['profile'] == 'Administrateur') {
     include 'shared/header-admin.php';
 } else {
-    include 'shared/header.php';
+    include ('shared/header.php');
     header('Location: score.php');
 }
 
-$rep = $db->query("select * from pays");
+$db = new DatabaseConnection();
+$cnx = $db->GetConnectionString();
+$rep = $cnx->query("select * from pays");
 
+function CandidatPostuler($num_cand,$id_election,$date){
+    $clDb = new DatabaseConnection();
+    $my_db = $clDb->GetConnectionString();
 
+    $insert = $my_db->prepare("INSERT INTO postuler values(:candidat,:election,:date_post)");
+    $insert->execute(
+        array('candidat' => $num_cand,'election' => $id_election,'date_post' => $date)
+    );
+    $i = $insert->rowCount();
+    if ($i!=0){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+function CandidatParticiper($num_cand,$id_tour){
+    $clDb = new DatabaseConnection();
+    $my_db = $clDb->GetConnectionString();
+
+    $insert = $my_db->prepare("INSERT INTO tour values(:candidat,:tour)");
+    $insert->execute(
+        array('candidat' => $num_cand,'tour' => $id_tour)
+    );
+    $i = $insert->rowCount();
+    if($i!=0){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
 
 ?>
 
@@ -32,18 +61,19 @@ $rep = $db->query("select * from pays");
             else{
             
             }*/
+            //function Tr
             
             if(!isset($_POST['nom']) && !isset($_POST['postnom']) && !isset($_POST['prenom']) && !isset($_POST['email']) && !isset($_POST['telephone_1']) && !isset($_POST['sexe']) && !isset($_POST['lieu_naissance']) && !isset($_POST['date_naissance']) && !isset($_POST['nationalite']) && !isset($_POST['profession']) && !isset($_POST['parti']) && !isset($_POST['rue']) && !isset($_POST['numero']) && !isset($_POST['quartier']) && !isset($_POST['commune']) && !isset($_POST['ville']) && !isset($_POST['pays'])){
                 echo '';
             }
             else{
-                $verifElectionStatus = $db->prepare("select * from election where etat=:status");
+                $verifElectionStatus = $cnx->prepare("select * from election where etat=:status");
                 $verifElectionStatus->execute(array('status' => 'En cours'));
                 $isTrue = $verifElectionStatus->fetch();
                 if ($isTrue) {
                     
                     
-                    $verifScore = $db->prepare("select * from score, tour, election where score.id_tour=tour.id_tour and tour.id_election = election.id_election and election.etat=:status");
+                    $verifScore = $cnx->prepare("select * from score, tour, election where score.id_tour=tour.id_tour and tour.id_election = election.id_election and election.etat=:status");
                     $verifScore->execute(array('status' =>'En cours'));
                     $verif = $verifScore->fetch();
                     if ($verif) {
@@ -51,7 +81,7 @@ $rep = $db->query("select * from pays");
                     }
                     else{
                         //$request = "insert into candidat(nom,postnom,prenom,email,telephone_1,sexe,lieu_de_naissance,date_de_naissance,nationalite,profession,parti_politique,rue,numero,quartier,commune,ville,pays) values (:nom,:postnom,:prenom,:email,:tel,:sexe,:lieu_naiss,:date_naiss,:nationalite,:profession,:parti,:rue,:numero,:quartier,:commune,:ville,:pays)";
-                        $insert=$db->prepare("insert into candidat(nom,postnom,prenom,email,telephone_1,sexe,lieu_de_naissance,date_de_naissance,nationalite,profession,parti_politique,rue,numero,quartier,commune,ville,pays) values (:nom,:postnom,:prenom,:email,:tel,:sexe,:lieu_naiss,:date_naiss,:nationalite,:profession,:parti,:rue,:numero,:quartier,:commune,:ville,:pays)");
+                        $insert=$cnx->prepare("insert into candidat(nom,postnom,prenom,email,telephone_1,sexe,lieu_de_naissance,date_de_naissance,nationalite,profession,parti_politique,rue,numero,quartier,commune,ville,pays) values (:nom,:postnom,:prenom,:email,:tel,:sexe,:lieu_naiss,:date_naiss,:nationalite,:profession,:parti,:rue,:numero,:quartier,:commune,:ville,:pays)");
                             if(
                                 $insert->execute(
                                             array(
@@ -73,7 +103,56 @@ $rep = $db->query("select * from pays");
                                                 )
                                             )
                     ){
-                        $success_message = 'Le candidat est enregistré avec succès';
+                        //Fonctionn anonyme pour recuperer le numero(identifiant) du candidat...
+                        $numCand = function(){
+                            $clDb = new DatabaseConnection();
+                            $my_db = $clDb->GetConnectionString();
+                            $num = 0;
+                            $cand = $my_db->prepare('select max(num_cand) from candidat');
+                            $cand->execute();
+                            if($row = $cand->fetch()){
+                                $num = $row[0];
+                            }
+
+                            return $num;
+                        };
+
+                        //Fonctionn anonyme pour recuperer l'identifiant de l'élection en cours...
+                        $idElection = function(){
+                            $clDb = new DatabaseConnection();
+                            $my_db = $clDb->GetConnectionString();
+                            $id = 0;
+                            $election = $my_db->prepare('select id_election from election where etat=:status');
+                            $election->execute(array('status' =>'En cours'));
+                            if($row = $election->fetch()){
+                                $id = $row[0];
+                            }
+
+                            return $id;
+                        };
+
+                        //Fonctionn anonyme pour recuperer l'identifiant du premier tour...
+                        $idTour = function(){
+                            $clDb = new DatabaseConnection();
+                            $my_db = $clDb->GetConnectionString();
+                            $id = 0;
+                            $tour = $my_db->prepare("SELECT max(id_tour) from tour");
+                            $tour->execute();
+                            if($row = $tour->fetch()){
+                                $id = $row[0];
+                            }
+
+                            return $id;
+                        };
+                        
+                        $postuler = CandidatPostuler($numCand(),$idElection(),date("Y-m-d"));
+                        $participer = CandidatParticiper($numCand(),$idTour());
+                        if($postuler && $participer){
+                            $success_message = 'Le candidat est enregistré avec succès';
+                        }
+                        else{
+                            $error_message = "Le système n'a pas pu confirmer que le candidat a postuler !";
+                        }
                     }
                     else{
                         $error_message = 'Echec enregistrement du candidat';

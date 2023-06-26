@@ -1,14 +1,18 @@
 <?php
 
+
 $err_message;
 
+include_once ("shared/DatabaseConnection.php");
+$clDb = new DatabaseConnection();
+$db = $clDb->GetConnectionString();
 session_start();
-try{
+/*try{
     $db = new PDO('pgsql:host=localhost;port=5432;dbname=eputy_base', 'postgres', 'secret');
 }
 catch(Exception $e){
     die('Erreur : ' . $e->getMessage());
-}
+}*/
 
 if(!empty($_SESSION['id'])){
     if($_SESSION['profile']=='Administrateur'){

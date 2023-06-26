@@ -52,6 +52,7 @@ create table score
 (
 id_score serial,
 id_tour int,
+num_cand int,
 valeur decimal(5,2),
 CONSTRAINT pk_candidat PRIMARY KEY(id_score)
 );
@@ -66,14 +67,6 @@ create table participer
 num_cand int,
 id_tour int
 );
-create table score_candidat
-(
-id int auto_increment primary key,
-id_score int,
-num_cand int,
-constraint fk_score_score_candidat foreign key(id_score) references score(id_score),
-constraint fk_candidat_score_candidat foreign key(num_cand) references candidat(num_cand)
-);
 
 
 
@@ -85,7 +78,7 @@ alter table postuler add constraint fk_election_postuler foreign key(id_election
 alter table participer add constraint fk_candidat_participer foreign key(num_cand) references candidat(num_cand);
 alter table participer add constraint fk_tour_participer foreign key(id_tour) references tour(id_tour);
 alter table score add constraint fk_tour_score foreign key(id_tour) references tour(id_tour);
-alter table election add constraint fk_utilisateur_election foreign key(id_election) references election(id_election);
-
+alter table election add constraint fk_utilisateur_election foreign key(num_user) references utilisateur(num_user);
+alter table score add constraint fk_candidate_score foreign key(num_cand) REFERENCES candidat(num_cand);
 
 

@@ -1,11 +1,14 @@
 <?php 
+include_once 'shared/DatabaseConnection.php';
 session_start();
-try {
+/*try {
     $db = new PDO('pgsql:host=localhost;port=5432;dbname=eputy_base','postgres','secret');
 }
 catch (Exception $e){
     die('Erreur :'.$e->getMessage());
-}
+}*/
+$clDb = new DatabaseConnection();
+$db = $clDb->GetConnectionString();
 if($_SESSION['profile']=='Administrateur'){
     include 'shared/header-admin.php';
 }
