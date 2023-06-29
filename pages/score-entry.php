@@ -40,7 +40,7 @@ $edition = function($status){
             echo '';
         }
         else{
-            $requete = $db->query("select * from election");
+            $requete = $cnx->query("select * from election");
 
         $reponse = $requete->fetch();
         if(!$reponse){
@@ -53,7 +53,7 @@ $edition = function($status){
             }
         }
         else{
-            $etat = $db->prepare("select * from election where etat=:etat");
+            $etat = $cnx->prepare("select * from election where etat=:etat");
             $etat->execute(
                 array('etat' => 'En cours')
             );
