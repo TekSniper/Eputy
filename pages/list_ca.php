@@ -16,7 +16,7 @@ if($_SESSION['profile']=='Administrateur'){
 $db = new DatabaseConnection();//Création de l'objet $db...
 $cnx = $db->GetConnectionString();//Recupération de la chaine de connexion
 
-$requete = $cnx->prepare("select ca.num_cand,ca.nom,ca.postnom,ca.prenom,ca.sexe,ca.parti_politique from candidat ca,tour tr,participer pa,election el where pa.num_cand=ca.num_cand and pa.id_tour=tr.id_tour and tr.id_election=el.id_election and el.etat=:status");
+$requete = $cnx->prepare("select ca.num_cand,ca.nom,ca.postnom,ca.prenom,ca.sexe,ca.parti_politique from candidat ca,tour tr,participer pa,election el where pa.num_cand=ca.num_cand and pa.id_tour=tr.id_tour and tr.id_election=el.id_election and el.etat=:status and tr.id_tour=(select max(id_tour) from tour)");
 
 $edition = function($status){
     $db = new DatabaseConnection();
@@ -55,6 +55,7 @@ $edition = function($status){
                         <?php
                             $requete->execute(array('status' => 'En cours'));
                             while ($rows=$requete->fetch()):;
+
                         ?>
                         <tr>
                             <td><?php echo $rows[0]; ?></td>

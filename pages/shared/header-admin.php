@@ -39,8 +39,8 @@
                 </div>
                 
                 <a href="./../pages/elections.php" class="navbar-item">Elections</a>
-                <a href="./../pages/candidat-score.php" class="navbar-item">Candidats</a>
-                <a href="./../pages/score.php" class="navbar-item">Score</a>
+                <a href="./../pages/maj_candidat.php" class="navbar-item"><i class="fa-solid fa-add"></i> &nbsp; Candidats</a>
+                <a href="./../pages/list_ca.php" class="navbar-item">Liste des candidats</a>
             </div>
             <div class="navbar-end">
                 <div class="navbar-item">

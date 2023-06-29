@@ -32,7 +32,7 @@
         <div class="navbar-menu is-active" id="navMenu">
             <div class="navbar-start">
                 <a href="./../index.php" class="navbar-item">Accueil</a>
-                <a href="./../score.php" class="navbar-item">Score</a>
+                <a href="./../list_ca.php" class="navbar-item">Liste des candidats</a>
             </div>
             <div class="navbar-end">
                 <div class="navbar-item">
