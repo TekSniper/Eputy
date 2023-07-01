@@ -16,7 +16,7 @@ if($_SESSION['profile']=='Administrateur'){
 $db = new DatabaseConnection();//Création de l'objet $db...
 $cnx = $db->GetConnectionString();//Recupération de la chaine de connexion
 
-$requete = $cnx->prepare("select ca.num_cand,ca.nom,ca.postnom,ca.prenom,ca.sexe,ca.parti_politique from candidat ca,tour tr,participer pa,election el where pa.num_cand=ca.num_cand and pa.id_tour=tr.id_tour and tr.id_election=el.id_election and el.etat=:status");
+/*$requete = $cnx->prepare("select ca.num_cand,ca.nom,ca.postnom,ca.prenom,ca.sexe,ca.parti_politique from candidat ca,tour tr,participer pa,election el where pa.num_cand=ca.num_cand and pa.id_tour=tr.id_tour and tr.id_election=el.id_election and el.etat=:status");
 
 $edition = function($status){
     $db = new DatabaseConnection();
@@ -29,40 +29,81 @@ $edition = function($status){
     }
 
     return $ed;
+};*/
+
+$id_tour = function(){
+    $db = new DatabaseConnection();
+    $cnx = $db->GetConnectionString();
+    $id = 0;
+    $rq = $cnx->prepare("select max(id_tour) from tour,election where tour.id_election=election.id_election and election.etat=:status");
+    $rq->execute(array('status' =>'En cours'));
+    if($rows=$rq->fetch()){
+        $id = $rows[0];
+    }
+
+    return $id;
 };
+
+//Validation de score du candidat
+function ScoreEntry($num_cand,$id_tour,$value){
+    $db = new DatabaseConnection();
+    $cnx = $db->GetConnectionString();
+
+    //
+    $rq = $cnx->prepare("insert into score(num_cand,id_tour,valeur) values(:num_cand,:id_tour,:value)");
+    $rq->execute(array('num_cand' => $num_cand, 'id_tour'=>$id_tour, 'value' => $value));
+    $i = $rq->rowCount();
+    if($i!=0){
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+
+//Verification du nombre de candidat dont les scores sont validés sur base du nombre total des candidats ayant postulés
+function VerifNombreCandidat(){
+    $db = new DatabaseConnection();
+    $cnx = $db->GetConnectionString();
+    $rq_nb_cand = $cnx->prepare("select count(ca.num_cand) from candidat ca,tour tr,participer pa,election el where pa.num_cand=ca.num_cand and pa.id_tour=tr.id_tour and tr.id_election=el.id_election and el.etat=:status and tr.id_tour=(select max(id_tour) from tour)");
+    $rq_nb_cand->execute(array("status"=>'En cours'));
+    $nb_1=0;
+    if($rows=$rq_nb_cand->fetch()){
+        $nb_1 = $rows[0];
+    }
+    $rq_nb_cand_sc = $cnx->prepare("select count(ca.num_cand) from candidat ca,tour tr,participer pa,election el, score sc 
+                                            where pa.num_cand=ca.num_cand and pa.id_tour=tr.id_tour and tr.id_election=el.id_election 
+                                            and el.etat=:status and tr.id_tour=(select max(id_tour) from tour) and 
+                                            sc.id_tour=tr.id_tour and ca.num_cand=sc.num_cand");
+    $rq_nb_cand_sc->execute(array("status" => "En cours"));
+    $nb_2=0;
+    if($rows=$rq_nb_cand_sc->fetch()) {
+        $nb_2=$rows[0];
+    }
+    if($nb_1==$nb_2){
+        return true;
+    }
+    else {
+        return false;
+    }
+}
 
 ?>
 
 <body>
     <div class="container">
         <?php
-        if(!isset($_POST['edition']) or !isset($_POST['date_elect'])){
+        if(!isset($_POST['score'])){
             echo '';
         }
         else{
-            $requete = $cnx->query("select * from election");
+            /*$requete = $cnx->query("select * from election");
 
-        $reponse = $requete->fetch();
-        if(!$reponse){
-            $c = CreationElection($_POST['edition'],$_POST['date_elect']);
-            if($c > 0){
-                $success_message="Election créée avec succès";
-            }
-            else{
-                $error_message="Erreur créeation élection !";
-            }
-        }
-        else{
-            $etat = $cnx->prepare("select * from election where etat=:etat");
-            $etat->execute(
-                array('etat' => 'En cours')
-            );
-            $isTrue = $etat->fetch();
-            if($isTrue){
-                $error_message = 'Les élections sont en cours ! Vous ne pouvez pas créer une nouvelle édition !';
-            }
-            else{
-                $c = CreationElection($_POST['edition'],$_POST['date_elect']);
+
+            $reponse = $requete->fetch();
+            if(!$reponse){
+                $c = CreationElection($_POST['score']);
                 if($c > 0){
                     $success_message="Election créée avec succès";
                 }
@@ -70,7 +111,40 @@ $edition = function($status){
                     $error_message="Erreur créeation élection !";
                 }
             }
-        }
+            else{
+                $etat = $cnx->prepare("select * from election where etat=:etat");
+                $etat->execute(
+                    array('etat' => 'En cours')
+                );
+                $isTrue = $etat->fetch();
+                if($isTrue){
+                    $error_message = 'Les élections sont en cours ! Vous ne pouvez pas créer une nouvelle édition !';
+                }
+                else{
+                    $c = CreationElection($_POST['score']);
+                    if($c > 0){
+                        $success_message="Election créée avec succès";
+                    }
+                    else{
+                        $error_message="Erreur créeation élection !";
+                    }
+                }
+            }*/
+            $verifCand = VerifNombreCandidat();
+            if($verifCand){
+                $error_message = "Le score de tous les candidats sont validés. Vous ne pouvez plus enregistrer d'autres scores !";
+                header('location:list_ca.php');
+            }
+            else{
+                $entry = ScoreEntry($_POST['num_cand'],$id_tour(),$_POST['score']);
+                if($entry){
+                    $success_message = "Score validé avec succès !";
+                    header('location:list_ca.php');
+                }
+                else{
+                    $error_message = "Erreur enregistrement du score !";
+                }
+            }            
         }
         
 
@@ -96,13 +170,14 @@ $edition = function($status){
         </h3>
 
         <form action="" method="post" class="box">
+            <input type="hidden" name="num_cand" value="<?php echo $_GET['num'] ?>">
             <div class="columns is-centered">
                 <div class="column">
                     <div class="field">
                         <label for="nom" class="label">Nom</label>
                         <p class="control is-expanded has-icons-left">
                             <input class="input" type="text" placeholder="Nom" id="nom" name="nom" 
-                            required value="<?php echo $_GET['name'] ?>">
+                            required value="<?php echo $_GET['name'] ?>" readonly>
                             <span class="icon is-small is-left">
                                 <i class="fas fa-user"></i>
                             </span>
@@ -114,7 +189,7 @@ $edition = function($status){
                         <label for="postnom" class="label">Post-Nom</label>
                         <p class="control is-expanded has-icons-left">
                             <input class="input" type="text" placeholder="Post-Nom" id="postnom" name="postnom"
-                                required value="<?php echo $_GET['postn'] ?>">
+                                required value="<?php echo $_GET['postn'] ?>" readonly>
                             <span class="icon is-small is-left">
                                 <i class="fas fa-user"></i>
                             </span>
@@ -126,7 +201,7 @@ $edition = function($status){
                         <label for="prenom" class="label">Prénom</label>
                         <p class="control is-expanded has-icons-left">
                             <input class="input" type="text" placeholder="Prénom" id="prenom" name="prenom" 
-                            required value="<?php echo $_GET['pren'] ?>">
+                            required value="<?php echo $_GET['pren'] ?>" readonly>
                             <span class="icon is-small is-left">
                                 <i class="fas fa-user"></i>
                             </span>
@@ -135,17 +210,26 @@ $edition = function($status){
                 </div>
             </div><hr>
             <div class="columns is-centered">
-                <h5 class="title">Score obtenu</h5><hr>
                 <div class="column">
+                    <h5 class="title">Score obtenu &nbsp;<i class="fa-solid fa-star" style="color:#FDD360"></i></h5>
+                </div>
+                
+                <div class="column is-6">
                     <div class="field">
                         <label for="score" class="label">Saisissez le score</label>
                         <p class="control is-expanded has-icons-left">
-                            <input type="text" class="input">
-                            <span class="icons is-small is-left">
-                                
+                            <input type="text" class="input" id="score" name="score">
+                            <span class="icon is-small is-left">
+                                <i class="fa-solid fa-star"></i>
                             </span>
                         </p>
                     </div>
+                </div>
+            </div>
+            <div class="columns">
+                <div class="column">
+                    <input type="submit" value="Valider" class="button"
+                        style="color:#1C3D59;background-color:#D8E6F2;width:250px">
                 </div>
             </div>
         </form>
