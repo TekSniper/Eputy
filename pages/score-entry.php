@@ -44,6 +44,43 @@ $id_tour = function(){
     return $id;
 };
 
+//Enregistrement des candidats qui doivent participer au second tour
+function CandidatsSecondTour(){
+    //Recuperation de l'identifiant du second tour
+    $idTour = function(){
+        $db = new DatabaseConnection();
+        $cnx = $db->GetConnectionString();
+        $id_tour = 0;
+        $rq = $cnx->prepare("select max(id_tour) from tour,election where tour.id_election=election.id_election and election.etat=:status");
+        $rq->execute(array('status' => 'En cours'));
+        if($rw=$rq->fetch()){
+            $id_tour = $rw[0];
+        }
+        return $id_tour;
+    };
+
+    //Recuperation des numeros des candidats qui participent au second tour
+    
+}
+
+//Creation 2è tour au cas où aucun candidat n'obtient plus de 50%
+function CreateTourElection($designation,$id_election){
+    $ClDb = new DatabaseConnection();
+    $db = $ClDb->GetConnectionString();    
+    
+
+    $insert = $db->prepare("insert into tour(designation,id_election) values(:designation,:idelection)");
+    $insert->execute(
+        array('designation' => $designation, 'idelection' => $id_election)
+    );
+    $i = $insert->rowCount();
+    if($i!=0){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
 //Validation de score du candidat
 function ScoreEntry($num_cand,$id_tour,$value){
     $db = new DatabaseConnection();
@@ -139,6 +176,44 @@ function VerifNombreCandidat(){
                 $entry = ScoreEntry($_POST['num_cand'],$id_tour(),$_POST['score']);
                 if($entry){
                     $success_message = "Score validé avec succès !";
+                    $verifCand_1 = VerifNombreCandidat();
+                    if($verifCand_1){
+                        $verif_score = $cnx->prepare("select count(ca.num_cand) 
+                            from candidat ca,tour tr,participer pa,election el, score sc 
+                            where pa.num_cand=ca.num_cand and pa.id_tour=tr.id_tour and tr.id_election=el.id_election 
+                            and el.etat=:status and tr.id_tour=(select max(id_tour) from tour) and 
+                            sc.id_tour=tr.id_tour and ca.num_cand=sc.num_cand and sc.valeur>=:value");
+                        $verif_score->execute(array('status' => 'En cours','value' => 50));
+                        $n = 0;
+                        if($ver=$verif_score->fetch()){
+                            $n = $ver;
+                            if($n==0){
+                                $id_election = function(){
+                                    $db = new DatabaseConnection();
+                                    $cnx = $db->GetConnectionString();
+                                    $rqt = $cnx->prepare("select * from election where etat=:status");
+                                    $rqt->execute(array('status' => 'En cours'));
+                                    $el = 0;
+                                    if($rw = $rqt->fetch()){
+                                        $el = $rw[0];
+                                    }
+
+                                    return $el;
+                                };
+                                //Appel de la fonction de creation du second tour
+                                $createTour = CreateTourElection('2nd Tour',$id_election);
+                                if($createTour){
+
+                                }
+                                else{
+                                    $error_message = "Erreur de création du second tour";
+                                }
+                            }
+                            else{
+
+                            }
+                        }
+                    }
                     header('location:list_ca.php');
                 }
                 else{
