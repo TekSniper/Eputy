@@ -44,8 +44,24 @@ $id_tour = function(){
     return $id;
 };
 
+//Verification s'il existe déjà un score pour le candidat sélectionné
+function VerifNumCandScore(){
+    $db = new DatabaseConnection();
+    $cnx = $db->GetConnectionString();
+    $rq = $cnx->prepare("select * from tour,election,score where score.num_cand=:num and tour.id_tour=(select max(id_tour) from tour)");
+    $rq->execute(array('num' =>$_GET['num']));
+    if($rq->fetch()){
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 //Enregistrement des candidats qui doivent participer au second tour
 function CandidatsSecondTour(){
+    $db = new DatabaseConnection();
+    $cnx = $db->GetConnectionString();
     //Recuperation de l'identifiant du second tour
     $idTour = function(){
         $db = new DatabaseConnection();
@@ -60,6 +76,42 @@ function CandidatsSecondTour(){
     };
 
     //Recuperation des numeros des candidats qui participent au second tour
+    $numCandList = function(){
+        $tb_numCand = [];
+        $db = new DatabaseConnection();
+        $cnx = $db->GetConnectionString();
+        $rq = $cnx->prepare("
+            select ca.num_cand from candidat ca,postuler po,election el, participer pa, tour tr, score sc where ".
+            "ca.num_cand=po.num_cand and el.id_election=po.id_election and el.etat =:satus and ".
+            "pa.num_cand=ca.num_cand and tr.id_tour=pa.id_tour and sc.num_cand=ca.num_cand and ".
+            "sc.valeur>:value and sc.id_tour=tr.id_tour
+        ");
+        $rq->execute(array(
+            "status" => "En cours",
+            "value" => 12,5
+            )
+        );
+        while ($row = $rq->fetch()){
+            array_push($tb_numCand,$row[0]);
+        }
+
+        return $tb_numCand;
+    };
+
+    foreach ($numCandList() as $num){
+        $update = $cnx->prepare("insert into participer values(:num_cand,:id_tour)");
+        $update->execute(
+            array('num_cand' => $num, 'id_tour' => $idTour())
+        );
+
+        $i = $update->rowCount();
+        if ($i!=0) {
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
     
 }
 
@@ -173,52 +225,65 @@ function VerifNombreCandidat(){
                 header('location:list_ca.php');
             }
             else{
-                $entry = ScoreEntry($_POST['num_cand'],$id_tour(),$_POST['score']);
-                if($entry){
-                    $success_message = "Score validé avec succès !";
-                    $verifCand_1 = VerifNombreCandidat();
-                    if($verifCand_1){
-                        $verif_score = $cnx->prepare("select count(ca.num_cand) 
-                            from candidat ca,tour tr,participer pa,election el, score sc 
-                            where pa.num_cand=ca.num_cand and pa.id_tour=tr.id_tour and tr.id_election=el.id_election 
-                            and el.etat=:status and tr.id_tour=(select max(id_tour) from tour) and 
-                            sc.id_tour=tr.id_tour and ca.num_cand=sc.num_cand and sc.valeur>=:value");
-                        $verif_score->execute(array('status' => 'En cours','value' => 50));
-                        $n = 0;
-                        if($ver=$verif_score->fetch()){
-                            $n = $ver;
-                            if($n==0){
-                                $id_election = function(){
-                                    $db = new DatabaseConnection();
-                                    $cnx = $db->GetConnectionString();
-                                    $rqt = $cnx->prepare("select * from election where etat=:status");
-                                    $rqt->execute(array('status' => 'En cours'));
-                                    $el = 0;
-                                    if($rw = $rqt->fetch()){
-                                        $el = $rw[0];
-                                    }
-
-                                    return $el;
-                                };
-                                //Appel de la fonction de creation du second tour
-                                $createTour = CreateTourElection('2nd Tour',$id_election);
-                                if($createTour){
-
-                                }
-                                else{
-                                    $error_message = "Erreur de création du second tour";
-                                }
-                            }
-                            else{
-
-                            }
-                        }
-                    }
-                    header('location:list_ca.php');
+                $verif_num_cand = VerifNumCandScore();
+                if($verif_num_cand){
+                    $error_message = "Vous ne pouvez pas valider le score d'un candidat dont le score est déjà validé !";
+                    //header('location:list_ca.php');
                 }
                 else{
-                    $error_message = "Erreur enregistrement du score !";
-                }
+                    $entry = ScoreEntry($_POST['num_cand'],$id_tour(),$_POST['score']);
+                    if($entry){
+                        $success_message = "Score validé avec succès !";
+                        $verifCand_1 = VerifNombreCandidat();
+                        if($verifCand_1){
+                            $verif_score = $cnx->prepare("select count(ca.num_cand) 
+                                from candidat ca,tour tr,participer pa,election el, score sc 
+                                where pa.num_cand=ca.num_cand and pa.id_tour=tr.id_tour and tr.id_election=el.id_election 
+                                and el.etat=:status and tr.id_tour=(select max(id_tour) from tour) and 
+                                sc.id_tour=tr.id_tour and ca.num_cand=sc.num_cand and sc.valeur>=:value");
+                            $verif_score->execute(array('status' => 'En cours','value' => 50));
+                            $n = 0;
+                            if($ver=$verif_score->fetch()){
+                                $n = $ver;
+                                if($n==0){
+                                    $id_election = function(){
+                                        $db = new DatabaseConnection();
+                                        $cnx = $db->GetConnectionString();
+                                        $rqt = $cnx->prepare("select * from election where etat=:status");
+                                        $rqt->execute(array('status' => 'En cours'));
+                                        $el = 0;
+                                        if($rw = $rqt->fetch()){
+                                            $el = $rw[0];
+                                        }
+
+                                        return $el;
+                                    };
+                                    //Appel de la fonction de creation du second tour
+                                    $createTour = CreateTourElection('2nd Tour',$id_election);
+                                    if($createTour){
+                                        $addCandSecond = CandidatsSecondTour();
+                                        if($addCandSecond){
+                                            $success_message = "Creation du second tour avec succès !";
+                                        }
+                                        else{
+                                            $error_message = "Erreur d'ajout de candidat";
+                                        }
+                                    }
+                                    else{
+                                        $error_message = "Erreur de création du second tour";
+                                    }
+                                }
+                                else{
+
+                                }
+                            }
+                        }
+                        header('location:list_ca.php');
+                    }
+                    else{
+                        $error_message = "Erreur enregistrement du score !";
+                    }
+                }                
             }            
         }
         

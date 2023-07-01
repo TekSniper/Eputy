@@ -37,7 +37,7 @@ $edition = function($status){
     <div class="container">
         <h3 class="title" style="color:#1C3D59; margin-top:25px">
             Liste des candidats
-        </h3>
+        </h3><a href="resultat.php" class="button">Voir le résultat</a><br>
         <marquee behavior="alternate" direction="" width="20%" class="has-text-info"><?php echo $edition('En cours'); ?></marquee>
         <div class="box columns is-centered" style="background-color:white;margin-top:15px">
             <div class="column is-8-tablet is-8-widescreen is-8 desktop">
@@ -72,34 +72,6 @@ $edition = function($status){
                     </tbody>
                 </table>
             </div>
-        </div>
-        <?php
-            $rq_nb_cand = $cnx->prepare("select count(ca.num_cand) from candidat ca,tour tr,participer pa,election el where pa.num_cand=ca.num_cand and pa.id_tour=tr.id_tour and tr.id_election=el.id_election and el.etat=:status and tr.id_tour=(select max(id_tour) from tour)");
-            $rq_nb_cand->execute(array("status"=>'En cours'));
-            $nb_1=0;
-            if($rows=$rq_nb_cand->fetch()){
-                $nb_1 = $rows[0];
-            }
-            $rq_nb_cand_sc = $cnx->prepare("select count(ca.num_cand) 
-                                            from candidat ca,tour tr,participer pa,election el, score sc 
-                                            where pa.num_cand=ca.num_cand and pa.id_tour=tr.id_tour and tr.id_election=el.id_election 
-                                            and el.etat=:status and tr.id_tour=(select max(id_tour) from tour) and 
-                                            sc.id_tour=tr.id_tour and ca.num_cand=sc.num_cand");
-            $rq_nb_cand_sc->execute(array("status" => "En cours"));
-            $nb_2=0;
-            if($rows=$rq_nb_cand_sc->fetch()) {
-                $nb_2=$rows[0];
-            }
-
-            if($nb_1==$nb_2){
-        ?>
-        <div class="columns is-centered">
-            <div class="column">
-                <a href="resultat.php" class="link">Voir le résultat</a>
-            </div>
-        </div>
-        <?php
-            }
-        ?>
+        </div>      
     </div>
 </body>
