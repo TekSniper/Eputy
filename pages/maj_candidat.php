@@ -9,7 +9,7 @@ if ($_SESSION['profile'] == 'Administrateur') {
     include 'shared/header-admin.php';
 } else {
     include ('shared/header.php');
-    header('Location: score.php');
+    header('Location: list_ca.php');
 }
 
 $db = new DatabaseConnection();

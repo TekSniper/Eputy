@@ -2,6 +2,8 @@
 session_start();
 $error_message = "";
 $success_message = "";
+$designationTour = "";
+$result_message = "";
 include_once 'shared/DatabaseConnection.php';
 
 
@@ -9,7 +11,7 @@ if ($_SESSION['profile'] == 'Administrateur') {
     include 'shared/header-admin.php';
 } else {
     include ('shared/header.php');
-    header('Location: score.php');
+    header('Location: list_ca.php');
 }
 
 $db = new DatabaseConnection();
@@ -45,12 +47,11 @@ function VerifNombreCandidat($tour){
         return false;
     }
 }
-
-function VoirResultat(){
-    $existSecondTour=function(){
+//Verification si le second tour existe
+$existSecondTour=function(){
         $db = new DatabaseConnection();
         $cnx = $db->GetConnectionString();
-        $rq = $cnx->prepare("select * from tour,election where designation=:design and etat=status");
+        $rq = $cnx->prepare("select * from tour,election where designation=:design and etat=:status");
         $rq->execute(
             array('design'=>'2nd Tour','status'=>'En cours')
         );
@@ -61,46 +62,246 @@ function VoirResultat(){
             return false;
         }
     };
-    //Nombre de candidat au second tour
+
+//Nombre de candidat au second tour
     $countCandSnd=function($designation){
         $db = new DatabaseConnection();
         $cnx = $db->GetConnectionString();
+        $i = 0;
         $rq = $cnx->prepare("select count(*) from tour tr,participer pa,candidat ca,election el where designation='2nd Tour' and etat='En cours'
                             and tr.id_tour=pa.id_tour and ca.num_cand=pa.num_cand and tr.id_election=el.id_election");
+        $rq->execute();
+        if($rows = $rq->fetch()){
+            $i = $rows[0];
+        }
         
-    };
+        return $i;
+    };    
 
-    //Nombre de candidat dont les scores sont validés au second tour
+//Nombre de candidat dont les scores sont validés au second tour
     $countCandSndScore=function($designation){
         $db = new DatabaseConnection();
         $cnx = $db->GetConnectionString();
+        $i = 0;
+        $rq = $cnx->prepare("select count(*) from tour tr,participer pa,candidat ca,election el, score sc where designation='2nd Tour' and etat='En cours'
+                            and tr.id_tour=pa.id_tour and ca.num_cand=pa.num_cand and tr.id_election=el.id_election and
+							sc.id_tour=tr.id_tour and ca.num_cand=sc.num_cand");
+        $rq->execute();
+        if($row= $rq->fetch()){
+            $i = $row[0];
+        }
+        return $i;
     };
 
     //Nombre de candidat au premier tour
-    $countCandFirst=function($designation){
+    $countCandFirst=function(){
         $db = new DatabaseConnection();
         $cnx = $db->GetConnectionString();
+        $i = 0;
+        $rq = $cnx->prepare("select count(*) from tour tr,participer pa,candidat ca,election el where designation='1er Tour' and etat='En cours'
+                            and tr.id_tour=pa.id_tour and ca.num_cand=pa.num_cand and tr.id_election=el.id_election");
+        $rq->execute();
+        if($rows = $rq->fetch()){
+            $i = $rows[0];
+        }
+        
+        return $i;
     };
 
     //Nombre de candidat dont les scores sont validés au premier tour
-    $countCandFirstScore=function($designation){
+    $countCandFirstScore=function(){
         $db = new DatabaseConnection();
         $cnx = $db->GetConnectionString();
+        $i = 0;
+        $rq = $cnx->prepare("select count(*) from tour tr,participer pa,candidat ca,election el, score sc where designation='1er Tour' and etat='En cours'
+                            and tr.id_tour=pa.id_tour and ca.num_cand=pa.num_cand and tr.id_election=el.id_election and
+							sc.id_tour=tr.id_tour and ca.num_cand=sc.num_cand");
+        $rq->execute();
+        if($row= $rq->fetch()){
+            $i = $row[0];
+        }
+        return $i;
     };
-    if($existSecondTour){
+function VoirResultat($designation, $etat){
+    $db = new DatabaseConnection();
+    $cnx = $db->GetConnectionString();
+    $numCand = 0;
+    $nomCand = '';
+    $postnomCand = '';
+    $prenomCand = '';
+    $score = 0;
+    $detailResultat = '';
+    $rq = $cnx->prepare("select sc.valeur,ca.num_cand,ca.nom,ca.postnom,ca.prenom from tour tr,participer pa,candidat ca,
+							election el, score sc where designation=:design and etat=:status
+                            and tr.id_tour=pa.id_tour and ca.num_cand=pa.num_cand and tr.id_election=el.id_election and
+							sc.id_tour=tr.id_tour and ca.num_cand=sc.num_cand and ca.num_cand=(select min(num_cand) from candidat)");
+    $rq->execute(
+        array('design'=>$designation, 'status'=>$etat)
+    );
 
+    if($row = $rq->fetch()){
+        $score = $row[0];
+        $numCand = $row[1];
+        $nomCand = $row[2];
+        $postnomCand = $row[3];
+        $prenomCand = $row[4];
+    }
+
+    //Verification si le premier candidat est en ballotage favorable ou non
+    $compareScore = function($designation,$etat){
+        $db = new DatabaseConnection();
+        $cnx = $db->GetConnectionString();
+        $val_1=0;
+        $val_2=0;
+
+        //Requete de recherche du score du premier candidat
+        $requete_1 = $cnx->prepare("select sc.valeur,ca.num_cand,ca.nom,ca.postnom,ca.prenom from tour tr,participer pa,candidat ca,
+							election el, score sc where designation=:design and etat=:status
+                            and tr.id_tour=pa.id_tour and ca.num_cand=pa.num_cand and tr.id_election=el.id_election and
+							sc.id_tour=tr.id_tour and ca.num_cand=sc.num_cand and ca.num_cand=(select min(num_cand) from candidat)");
+
+        //Requete de recherche du plus grand score en cas de ballotage
+        $requete_2 = $cnx->prepare("select max(sc.valeur) from tour tr,participer pa,candidat ca,election el, score sc where 
+							designation=:design and etat=:status
+                            and tr.id_tour=pa.id_tour and ca.num_cand=pa.num_cand and tr.id_election=el.id_election and
+							sc.id_tour=tr.id_tour and ca.num_cand=sc.num_cand");
+        
+        //Recupération du score du premier candidat
+        $requete_1->execute(
+            array('design'=>$designation, 'status'=>$etat)
+        );
+        if($rows1 = $requete_1->fetch()){
+            $val_1 = $rows1[0];
+        }
+
+        //Recupération du plus grand score
+        $requete_2->execute(
+            array('design'=>$designation, 'status'=>$etat)
+        );
+        if($rows2 = $requete_2->fetch()){
+            $val_2 = $rows2[0];
+        }
+        
+        if($val_1==$val_2){
+            return true;
+        }
+        elseif($val_1<$val_2){
+            return false;
+        }
+    };
+
+    /***
+        RETOURNER LES DETAILS DU RESULTAT
+
+        Deux possibilités :
+        *Avec Swicth case
+        *Avec if() else
+    ***/
+    
+    
+    switch($score){
+        case $score>=50:
+            $detailResultat = "Le candidat N° ".$numCand.", ".$nomCand." ".$postnomCand." ".$prenomCand." est élu avec ".$score." %";
+            break;
+        case ($score<50 && $score>=12.5):{
+            if($compareScore($designation,$etat)){
+                $detailResultat = "Le candidat N° ".$numCand.", ".$nomCand." ".$postnomCand." ".$prenomCand." participe au second tour en ballotage favorable avec ".$score." %";
+            }
+            else{
+                $detailResultat = "Le candidat N° ".$numCand.", ".$nomCand." ".$postnomCand." ".$prenomCand." participe au second tour en ballotage défavorable avec ".$score." %";
+            }
+        }
+            break;
+        case $score<12.5:
+            $detailResultat = "Le candidat N° ".$numCand.", ".$nomCand." ".$postnomCand." ".$prenomCand." est battu avec ".$score." %";
+            break;
+    }
+
+    /*if($score>=50){
+        $detailResultat = "Le candidat N° ".$numCand.", ".$nomCand." ".$postnomCand." ".$prenomCand." est élu avec ".$score." %";
+    }
+    elseif($score<50 && $score>=12.5){
+        if($compareScore($designation,$etat)){
+                $detailResultat = "Le candidat N° ".$numCand.", ".$nomCand." ".$postnomCand." ".$prenomCand." participe au second tour en ballotage favorable avec ".$score." %";
+            }
+            else{
+                $detailResultat = "Le candidat N° ".$numCand.", ".$nomCand." ".$postnomCand." ".$prenomCand." participe au second tour en ballotage défavorable avec ".$score." %";
+            }
+    }
+    elseif($score<12.5){
+        $detailResultat = "Le candidat N° ".$numCand.", ".$nomCand." ".$postnomCand." ".$prenomCand." est battu avec ".$score." %";
+    }
+*/
+    return $detailResultat;
+
+    /*
+        FIN RETOUR LES DETAILS DU RESULTAT
+    */
+}
+
+
+/*** 
+ * 
+ * Résultats des élections
+ * 
+ *  ***/
+if($existSecondTour()){
+    if($countCandSnd()!=$countCandSndScore()){
+        if($countCandSndScore==0){
+            $designationTour = "1er Tour";
+            $result_message = VoirResultat('1er Tour','En cours');
+        }
+        else{
+            $error_message = "Les résultats ne sont pas encore disponibles pour l'instant !";
+            $designationTour = "2nd Tour";
+        }        
+    }
+    else{
+        $designationTour = "2nd Tour";
+        $result_message = VoirResultat('2nd Tour','En cours');
+    }
+}else{
+    if($countCandFirst()!=$countCandFirstScore()){
+        $error_message = "Les résultats ne sont pas encore disponibles pour l'instant !";
+        $designationTour = "1er Tour";
+    }
+    else{
+        $designationTour = "1er Tour";
+        $result_message = VoirResultat('1er Tour','En cours');
     }
 }
-$str_tour = '';
-/*if($existSecondTour()){
-    $str_tour = 'Premier tour';
-}
-*/
+
 ?>
 
 <body>
     <div class="container">
-        <h3 class="title" style="color:#1C3D59; margin-top:25px">Résultat du</h3>
+        <?php
+        
+        
 
+        if(strlen($error_message)>0){ ?>
+        <div class="notification is-danger is-light">
+            <button class="delete"></button>
+            <h4 class="title">Attention !</h4>
+            <?php echo $error_message; ?>
+        </div>
+        <?php }
+        if(strlen($success_message)>0){ ?>
+        <div class="notification is-success is-light">
+            <button class="delete"></button>
+            <h4 class="title">Success !</h4>
+            <?php echo $success_message; ?>
+        </div>
+        <?php }
+
+?>
+        <h3 class="title" style="color:#1C3D59; margin-top:25px">Résultat du <?php echo $designationTour; ?></h3>
+        <div class="box columns is-centered">
+            <div class="column">
+                <p class="is-size-4">
+                    <?php echo $result_message; ?>
+                </p>
+            </div>
+        </div>
     </div>
 </body>
