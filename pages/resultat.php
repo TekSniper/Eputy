@@ -303,5 +303,10 @@ if($existSecondTour()){
                 </p>
             </div>
         </div>
+        <div class="columns is-centered">
+            <div class="column">
+                <a href="cloturer.php" class="button is-medium is-light is-success">Clôturer les élections</a>
+            </div>
+        </div>
     </div>
 </body>
